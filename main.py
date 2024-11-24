@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from routes.user import router as user_router
 from routes.interaction import router as interaction_router
 from database import client
 
@@ -27,7 +26,6 @@ app.add_middleware(
 )
 
 # Register the routes without a prefix
-app.include_router(user_router, tags=["Users"])
 app.include_router(interaction_router, tags=["Interactions"])
 
 @app.get("/")
