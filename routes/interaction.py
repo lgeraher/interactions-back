@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, HTTPException, Body
 from database import db
 from datetime import datetime
@@ -8,6 +9,7 @@ router = APIRouter()
 
 # Timezone for CST
 CST = timezone('America/Mexico_City')
+ALLOWED_IPS = os.getenv("ALLOWED_IPS", "").split(",")
 
 def serialize_interaction(interaction):
     """
@@ -32,15 +34,15 @@ def validate_date(date_str):
 def calculate_score(interaction):
     """
     Calculate the score based on the specified rules:
-    - If interactionType is 'Office' and clientIP is '177.230.219.9', score = 1.
-    - If interactionType is 'Office' and clientIP is different, score = -1.
+    - If interactionType is 'Office' and clientIP is in the ALLOWED_IPS list, score = 1.
+    - If interactionType is 'Office' and clientIP is not in the ALLOWED_IPS list, score = -1.
     - If interactionType is 'Remote', score = 0.
     """
     interaction_type = interaction.get("interactionType")
     client_ip = interaction.get("clientIP")
 
     if interaction_type == "Office":
-        return 1 if client_ip == "177.230.219.9" else -1
+        return 1 if client_ip in ALLOWED_IPS else -1
     return 0 if interaction_type == "Remote" else 0
 
 @router.get("/users/{user_id}/interactions/{date}")
